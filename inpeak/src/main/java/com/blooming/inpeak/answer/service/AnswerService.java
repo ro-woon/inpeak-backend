@@ -1,5 +1,6 @@
 package com.blooming.inpeak.answer.service;
 
+import com.blooming.inpeak.answer.Member;
 import com.blooming.inpeak.answer.domain.Answer;
 import com.blooming.inpeak.answer.repository.AnswerRepository;
 import lombok.RequiredArgsConstructor;
