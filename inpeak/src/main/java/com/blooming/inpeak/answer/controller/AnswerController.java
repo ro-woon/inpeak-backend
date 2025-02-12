@@ -1,8 +1,8 @@
 package com.blooming.inpeak.answer.controller;
 
-import com.blooming.inpeak.answer.Member;
 import com.blooming.inpeak.answer.controller.dto.request.AnswerSkipRequest;
 import com.blooming.inpeak.answer.service.AnswerService;
+import com.blooming.inpeak.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
