@@ -1,5 +1,6 @@
 package com.blooming.inpeak.answer.domain;
 
+import com.blooming.inpeak.answer.Member;
 import com.blooming.inpeak.common.base.AuditingFields;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

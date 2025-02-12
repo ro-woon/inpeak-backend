@@ -1,8 +1,10 @@
 package com.blooming.inpeak.answer.controller;
 
+import com.blooming.inpeak.answer.Member;
 import com.blooming.inpeak.answer.controller.dto.request.AnswerSkipRequest;
 import com.blooming.inpeak.answer.service.AnswerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,6 @@ public class AnswerController {
         @RequestBody AnswerSkipRequest request
     ) {
         answerService.skipAnswer(member, request.questionId(), request.interviewId());
-
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
