@@ -59,6 +59,12 @@ dependencies {
         transitive = false  // 에이전트용 의존성 전이 비활성화
     }
     testImplementation "org.mockito:mockito-core:5.14.2"  // 테스트용 Mockito 코어
+
+    // QueryDsl, spring boot 3.x 이상 세팅
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 }
 
 // 테스트 태스크 설정
@@ -80,3 +86,19 @@ tasks.named('test', Test) {
         jvmArgs += "-javaagent:${configurations.mockitoAgent.singleFile}"  // Mockito 에이전트 추가
     }
 }
+
+// QueryDsl 빌드 옵션 (선택)
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+sourceSets {
+    main.java.srcDirs += [ querydslDir ]
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.generatedSourceOutputDirectory.set(file(querydslDir))
+}
+
+clean.doLast {
+    delete querydslDir
+}
+

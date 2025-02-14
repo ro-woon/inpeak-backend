@@ -1,4 +1,4 @@
-package com.blooming.inpeak.answer.controller.dto.request;
+package com.blooming.inpeak.answer.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 

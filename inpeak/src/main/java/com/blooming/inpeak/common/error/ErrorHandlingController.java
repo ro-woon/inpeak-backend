@@ -29,4 +29,11 @@ public class ErrorHandlingController {
         ErrorResponse.FieldError fieldError = new ErrorResponse.FieldError(e.getPropertyName(), (String) e.getValue(), e.getMessage());
         return buildFieldErrors(ErrorCode.INPUT_VALUE_INVALID, List.of(fieldError));
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("올바르지 않은 요청 값이 전달되었습니다. " + e.getMessage());
+        return buildError(ErrorCode.INPUT_VALUE_INVALID);
+    }
 }

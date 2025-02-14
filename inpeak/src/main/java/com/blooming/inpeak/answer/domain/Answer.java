@@ -6,9 +6,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -34,6 +37,16 @@ public class Answer extends AuditingFields {
     @Column(nullable = false)
     private Long interviewId;
 
+    // 저장 시에는 사용되지 않고 값을 조회할 때만 사용되는 필드들 페치 조인을 위해 사용된다.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "questionId", insertable = false, updatable = false)
+    private Question question;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interviewId", insertable = false, updatable = false)
+    private Interview interview;
+
+
     private String userAnswer;
 
     private String videoURL;
@@ -42,7 +55,6 @@ public class Answer extends AuditingFields {
 
     private String comment;
 
-    @Column(nullable = false)
     private boolean isUnderstood;
 
     @Column(nullable = false)
@@ -51,7 +63,7 @@ public class Answer extends AuditingFields {
 
     @Builder
     private Answer(Long questionId, Long memberId, Long interviewId, String userAnswer, String videoURL,
-        Long runningTime, String comment, boolean isUnderstood, AnswerStatus status) {
+        Long runningTime, String comment, Boolean isUnderstood, AnswerStatus status) {
         this.questionId = questionId;
         this.memberId = memberId;
         this.interviewId = interviewId;
@@ -69,7 +81,6 @@ public class Answer extends AuditingFields {
             .questionId(questionId)
             .memberId(member.getId())
             .interviewId(interviewId)
-            .isUnderstood(false) // 스킵된 답변은 이해 여부 false
             .status(AnswerStatus.SKIPPED) // 스킵된 상태 설정
             .build();
     }

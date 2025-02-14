@@ -24,7 +24,6 @@ class AnswerTest {
         assertEquals(questionId, skippedAnswer.getQuestionId());
         assertEquals(member.getId(), skippedAnswer.getMemberId());
         assertEquals(interviewId, skippedAnswer.getInterviewId());
-        assertFalse(skippedAnswer.isUnderstood()); // 스킵된 답변은 이해 여부가 false
         assertEquals(AnswerStatus.SKIPPED, skippedAnswer.getStatus()); // 스킵된 상태 설정
     }
 }
