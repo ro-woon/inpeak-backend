@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import com.blooming.inpeak.answer.domain.Answer;
 import com.blooming.inpeak.answer.domain.AnswerStatus;
 import com.blooming.inpeak.answer.dto.command.AnswerFilterCommand;
+import com.blooming.inpeak.answer.dto.response.AnswerDetailResponse;
 import com.blooming.inpeak.answer.dto.response.AnswerListResponse;
 import com.blooming.inpeak.answer.dto.response.InterviewWithAnswersResponse;
 import com.blooming.inpeak.answer.dto.response.RecentAnswerListResponse;
@@ -50,14 +51,8 @@ class AnswerServiceTest extends IntegrationTestSupport {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private Long memberId;
-    private AnswerFilterCommand command;
+    private final Long memberId = 1L;
 
-    @BeforeEach
-    void setUp() {
-        memberId = 1L;
-        command = new AnswerFilterCommand(memberId, "DESC", true, AnswerStatus.CORRECT, 0, 5);
-    }
 
     private Answer createAnswer(Long memberId, Long questionId, Long interviewId, String userAnswer,
         Long runningTime, AnswerStatus status, boolean isUnderstood) {
@@ -90,6 +85,9 @@ class AnswerServiceTest extends IntegrationTestSupport {
         createAnswer(memberId, question2.getId(), interview.getId(), "Spring의 DI 원리가 어쩌고", 130L,
             AnswerStatus.INCORRECT, false);
 
+        AnswerFilterCommand command = new AnswerFilterCommand(memberId, "DESC", true,
+            AnswerStatus.CORRECT, 0, 5);
+
         entityManager.flush();
         entityManager.clear();
 
@@ -105,6 +103,10 @@ class AnswerServiceTest extends IntegrationTestSupport {
     @Transactional
     @Test
     void getAnswerList_ShouldReturnEmptyList_WhenNoResults() {
+        // given
+        AnswerFilterCommand command = new AnswerFilterCommand(memberId, "DESC", true,
+            AnswerStatus.CORRECT, 0, 5);
+
         // when
         AnswerListResponse response = answerService.getAnswerList(command);
 
@@ -296,4 +298,44 @@ class AnswerServiceTest extends IntegrationTestSupport {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("해당 답변이 존재하지 않습니다.");
     }
+
+    @DisplayName("getAnswer()는 특정 답변 ID로 답변을 조회하면 올바른 응답을 반환해야 한다.")
+    @Transactional
+    @Test
+    void getAnswer_ShouldReturnCorrectAnswer() {
+        // given
+        Long memberId = 1L;
+        Interview interview = interviewRepository.save(Interview.of(memberId, LocalDate.now()));
+        Question question = questionRepository.save(
+            Question.of("Spring의 IoC 컨테이너란?", QuestionType.SPRING, "IoC 컨테이너는 Bean을 관리합니다.")
+        );
+
+        Answer answer = createAnswer(memberId, question.getId(), interview.getId(),
+            "IoC는 제어의 역전", 30L, AnswerStatus.CORRECT, true);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        AnswerDetailResponse response = answerService.getAnswer(answer.getId());
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.userAnswer()).isEqualTo("IoC는 제어의 역전");
+        assertThat(response.answerStatus()).isEqualTo(AnswerStatus.CORRECT);
+    }
+
+    @DisplayName("getAnswer()는 존재하지 않는 답변 ID로 조회하면 예외를 발생시켜야 한다.")
+    @Transactional
+    @Test
+    void getAnswer_ShouldThrowException_WhenAnswerNotFound() {
+        // given
+        Long nonExistingId = 9999L;
+
+        // when & then
+        assertThatThrownBy(() -> answerService.getAnswer(nonExistingId))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("해당 답변이 존재하지 않습니다.");
+    }
+
 }
