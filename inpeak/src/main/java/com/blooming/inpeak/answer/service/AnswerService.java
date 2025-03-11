@@ -4,6 +4,7 @@ import com.blooming.inpeak.answer.domain.Answer;
 import com.blooming.inpeak.answer.domain.AnswerStatus;
 import com.blooming.inpeak.answer.dto.command.AnswerCreateCommand;
 import com.blooming.inpeak.answer.dto.command.AnswerFilterCommand;
+import com.blooming.inpeak.answer.dto.response.AnswerDetailResponse;
 import com.blooming.inpeak.answer.dto.response.AnswerIDResponse;
 import com.blooming.inpeak.answer.dto.response.AnswerListResponse;
 import com.blooming.inpeak.answer.dto.response.AnswerResponse;
@@ -166,5 +167,18 @@ public class AnswerService {
      */
     public UserStatsResponse getUserStats(Long memberId) {
         return answerRepository.getUserStats(memberId);
+    }
+
+    /**
+     * 답변 ID로 답변을 조회하는 메서드
+     *
+     * @param answerId 답변 ID
+     * @return 답변
+     */
+    public AnswerDetailResponse getAnswer(Long answerId) {
+        Answer answer = answerRepository.findAnswerById(answerId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 답변이 존재하지 않습니다."));
+
+        return AnswerDetailResponse.from(answer);
     }
 }

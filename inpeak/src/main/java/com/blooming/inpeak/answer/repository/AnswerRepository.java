@@ -4,6 +4,7 @@ import com.blooming.inpeak.answer.domain.Answer;
 import com.blooming.inpeak.answer.dto.response.UserStatsResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,5 +44,13 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     UserStatsResponse getUserStats(@Param("memberId") Long memberId);
 
 
+    /**
+     * 특정 답변 ID로 답변 조회 (인터뷰와 질문을 패치 조인하여 조회)
+     */
+    @Query("SELECT a FROM Answer a " +
+        "JOIN FETCH a.interview i " +
+        "JOIN FETCH a.question q " +
+        "WHERE a.id = :answerId")
+    Optional<Answer> findAnswerById(@Param("answerId") Long answerId);
 
 }
