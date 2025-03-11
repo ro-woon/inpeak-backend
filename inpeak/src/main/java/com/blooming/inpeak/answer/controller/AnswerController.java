@@ -13,6 +13,7 @@ import com.blooming.inpeak.answer.dto.response.AnswerListResponse;
 import com.blooming.inpeak.answer.dto.response.AnswerPresignedUrlResponse;
 import com.blooming.inpeak.answer.dto.response.InterviewWithAnswersResponse;
 import com.blooming.inpeak.answer.dto.response.RecentAnswerListResponse;
+import com.blooming.inpeak.answer.dto.response.UserStatsResponse;
 import com.blooming.inpeak.answer.service.AnswerPresignedUrlService;
 import com.blooming.inpeak.answer.service.AnswerService;
 import com.blooming.inpeak.member.dto.MemberPrincipal;
@@ -113,5 +114,13 @@ public class AnswerController {
     ) {
         answerService.updateComment(request.answerId(), request.comment());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<UserStatsResponse> getSummary(
+        @AuthenticationPrincipal MemberPrincipal memberPrincipal
+    ) {
+        UserStatsResponse response = answerService.getUserStats(memberPrincipal.id());
+        return ResponseEntity.ok(response);
     }
 }

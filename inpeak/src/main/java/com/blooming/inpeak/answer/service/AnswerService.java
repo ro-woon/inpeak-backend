@@ -10,6 +10,7 @@ import com.blooming.inpeak.answer.dto.response.AnswerResponse;
 import com.blooming.inpeak.answer.dto.response.InterviewWithAnswersResponse;
 import com.blooming.inpeak.answer.dto.response.RecentAnswerListResponse;
 import com.blooming.inpeak.answer.dto.response.RecentAnswerResponse;
+import com.blooming.inpeak.answer.dto.response.UserStatsResponse;
 import com.blooming.inpeak.answer.repository.AnswerRepository;
 import com.blooming.inpeak.answer.repository.AnswerRepositoryCustom;
 import com.blooming.inpeak.answer.repository.UserAnswerStatsRepository;
@@ -34,7 +35,6 @@ public class AnswerService {
     private final AnswerRepositoryCustom answerRepositoryCustom;
     private final GPTService gptService;
     private final QuestionRepository questionRepository;
-    private final UserAnswerStatsRepository userAnswerStatsRepository;
 
     /**
      * 답변을 스킵하는 메서드
@@ -127,8 +127,6 @@ public class AnswerService {
         Answer answer = Answer.of(command, feedback);
         answerRepository.save(answer);
 
-        userAnswerStatsRepository.incrementUserAnswerStat(answer.getMemberId(), answer.getStatus());
-
         return new AnswerIDResponse(answer.getId());
     }
 
@@ -158,5 +156,15 @@ public class AnswerService {
 
         answer.setComment(comment);
         answerRepository.save(answer);
+    }
+
+    /**
+     * 사용자의 답변 통계를 조회하는 메서드
+     *
+     * @param memberId 사용자 ID
+     * @return 사용자의 답변 통계
+     */
+    public UserStatsResponse getUserStats(Long memberId) {
+        return answerRepository.getUserStats(memberId);
     }
 }
