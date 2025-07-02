@@ -44,28 +44,11 @@ public class Member extends BaseEntity {
     @Builder
     private Member(
         Long id,
-        Long kakaoId, String nickname, Long totalQuestionCount,
-        Long correctAnswerCount, OAuth2Provider provider,
+        Long kakaoId, String nickname, OAuth2Provider provider,
         RegistrationStatus registrationStatus, String kakaoEmail
     ) {
         this.id = id;
         this.kakaoId = kakaoId;
-        this.nickname = nickname;
-        this.provider = provider;
-        this.registrationStatus =
-            registrationStatus != null ? registrationStatus : RegistrationStatus.INITIATED;
-        this.kakaoEmail = kakaoEmail;
-    }
-
-    // 테스트 파일에서 사용할 생성자
-    @Builder(access = AccessLevel.PRIVATE)
-    public Member(
-        Long id, Long kakaoId, String nickname,
-        OAuth2Provider provider, RegistrationStatus registrationStatus,
-        String kakaoEmail
-    ) {
-        this.id = id;
-        this.kakaoId= kakaoId;
         this.nickname = nickname;
         this.provider = provider;
         this.registrationStatus =
