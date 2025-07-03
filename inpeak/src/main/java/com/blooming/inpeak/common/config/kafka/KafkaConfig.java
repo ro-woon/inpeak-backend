@@ -40,6 +40,8 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, AnswerTaskMessage> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(5);
+
         return factory;
     }
 }
