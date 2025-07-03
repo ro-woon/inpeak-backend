@@ -109,12 +109,17 @@ public class AnswerPresignedUrlService {
      * @return 오디오 파일의 바이트 배열
      */
     public byte[] downloadAudioFromS3(String presignedUrl) {
-        ResponseEntity<byte[]> response = simpleRestTemplate.getForEntity(presignedUrl, byte[].class);
+        try {
+            ResponseEntity<byte[]> response = simpleRestTemplate.getForEntity(presignedUrl,
+                byte[].class);
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new DownloadFailureException("S3 Presigned URL 다운로드 실패: " + presignedUrl);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new DownloadFailureException("S3 Presigned URL 다운로드 실패: " + presignedUrl);
+            }
+
+            return response.getBody();
+        } catch (Exception e) {
+            throw new DownloadFailureException("S3 Presigned URL 다운로드 중 오류 발생: ");
         }
-
-        return response.getBody();
     }
 }

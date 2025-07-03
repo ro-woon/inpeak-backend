@@ -36,26 +36,24 @@ public class AnswerKafkaConsumer {
         AnswerTask task = answerTaskRepository.findById(taskId)
             .orElseThrow(() -> new NotFoundException("AnswerTask 없음. taskId=" + taskId));
 
-        // 커맨드 재구성
         AnswerCreateCommand command = AnswerCreateCommand.from(task);
 
-        // 음성 파일 다운 로드
         byte[] audioBytes = answerPresignedUrlService.downloadAudioFromS3(command.audioURL());
 
         try {
-            // GPT 피드백 생성
             String feedback = gptService.makeGPTResponse(audioBytes, task.getQuestionContent());
-
-            // 답변 생성
             Answer answer = answerManagerService.generateAnswer(command, feedback);
 
-            // 성공 처리
             task.markSuccess(answer.getId());
             log.info("답변 생성 성공: taskId={}, answerId={}", taskId, answer.getId());
+
         } catch (Exception e) {
-            // 실패 처리
             task.markFailed();
             log.error("답변 생성 실패: taskId={}, error={}", taskId, e.getMessage());
+
+            // 재시도 위해서 다시 오류 반환
+            throw e;
+
         } finally {
             answerTaskRepository.save(task);
         }
