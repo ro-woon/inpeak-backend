@@ -57,7 +57,7 @@ spring:
       port: 6379
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     consumer:
       group-id: answer-task-group
       auto-offset-reset: earliest
@@ -126,7 +126,7 @@ spring:
       port: ${REDIS_PORT}
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     consumer:
       group-id: answer-task-group
       auto-offset-reset: earliest
