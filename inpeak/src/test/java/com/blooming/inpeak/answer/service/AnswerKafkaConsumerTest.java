@@ -82,12 +82,15 @@ class AnswerKafkaConsumerTest {
         when(answerPresignedUrlService.downloadAudioFromS3(any())).thenReturn(new byte[]{9, 9, 9});
         when(gptService.makeGPTResponse(any(), any())).thenThrow(new RuntimeException("GPT 오류"));
 
-        // when
-        consumer.listen(new AnswerTaskMessage(1L));
+        // when & then
+        assertThrows(RuntimeException.class,
+            () -> consumer.listen(new AnswerTaskMessage(1L))
+        );
 
-        // then
         verify(task).markFailed();
         verify(answerTaskRepository).save(task);
+
+
     }
 
     @Test

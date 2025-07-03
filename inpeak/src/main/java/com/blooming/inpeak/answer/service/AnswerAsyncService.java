@@ -43,23 +43,4 @@ public class AnswerAsyncService {
 
         return new TaskIDResponse( savedTask.getId());
     }
-
-    /**
-     * 답변 작업 재시도 메서드
-     *
-     * @param taskId   작업 ID
-     * @param memberId 사용자 ID
-     */
-    @Transactional
-    public void retryAnswerTask(Long taskId, Long memberId) {
-        AnswerTask task = answerTaskRepository.findById(taskId)
-            .orElseThrow(() -> new NotFoundException("AnswerTask 없음. taskId=" + taskId));
-
-        // 작업 상태를 대기 상태로 변경
-        task.retry();
-        answerTaskRepository.save(task);
-
-        // 비동기 작업 요청
-        kafkaTemplate.send(ANSWER_TASK_TOPIC, new AnswerTaskMessage(task.getId()));
-    }
 }
