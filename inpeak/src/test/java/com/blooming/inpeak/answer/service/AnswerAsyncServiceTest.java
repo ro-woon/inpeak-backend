@@ -64,37 +64,6 @@ class AnswerAsyncServiceTest {
         verify(kafkaTemplate).send(eq("answer-task-topic"), any(AnswerTaskMessage.class));
     }
 
-    @Test
-    void retryAnswerTask_정상_작동() {
-        // given
-        AnswerTask failedTask = AnswerTask.builder()
-            .questionId(1L).interviewId(2L).memberId(3L)
-            .questionContent("Spring이란?")
-            .audioFileUrl("audio").videoUrl("video").time(30L)
-            .status(AnswerTaskStatus.FAILED)
-            .build();
-        setField(failedTask, "id", 999L);
-
-        when(answerTaskRepository.findById(999L)).thenReturn(Optional.of(failedTask));
-
-        // when
-        answerAsyncService.retryAnswerTask(999L, 3L);
-
-        // then
-        assertThat(failedTask.getStatus()).isEqualTo(AnswerTaskStatus.WAITING);
-        verify(answerTaskRepository).save(failedTask);
-        verify(kafkaTemplate).send("answer-task-topic", new AnswerTaskMessage(999L));
-    }
-
-    @Test
-    void retryAnswerTask_찾을수없으면_예외발생() {
-        when(answerTaskRepository.findById(1000L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> answerAsyncService.retryAnswerTask(1000L, 3L))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessageContaining("AnswerTask 없음. taskId=1000");
-    }
-
     // 테스트 목적상 private 필드 직접 설정 유틸
     private void setField(Object target, String fieldName, Object value) {
         try {

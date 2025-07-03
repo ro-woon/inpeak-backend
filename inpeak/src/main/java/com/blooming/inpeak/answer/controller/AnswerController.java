@@ -137,13 +137,4 @@ public class AnswerController {
         AnswerDetailResponse response = answerService.getAnswerById(answerId, memberPrincipal.id());
         return ResponseEntity.ok(response);
     }
-
-    @PostMapping("/tasks/{taskId}/retry")
-    public ResponseEntity<Void> retryAnswerTask(
-        @AuthenticationPrincipal MemberPrincipal memberPrincipal,
-        @PathVariable Long taskId
-    ) {
-        answerAsyncService.retryAnswerTask(taskId, memberPrincipal.id());
-        return ResponseEntity.ok().build();
-    }
 }
