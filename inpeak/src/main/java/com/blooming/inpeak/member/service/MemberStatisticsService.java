@@ -8,7 +8,12 @@ import com.blooming.inpeak.member.dto.response.MemberLevelResponse;
 import com.blooming.inpeak.member.dto.response.SuccessRateResponse;
 import com.blooming.inpeak.member.dto.response.MemberStatsResponse;
 import com.blooming.inpeak.member.repository.MemberStatisticsRepository;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +24,12 @@ public class MemberStatisticsService {
 
     private final MemberStatisticsRepository memberStatisticsRepository;
     private final AnswerRepository answerRepository;
+    private final RedissonClient redissonClient;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String AVERAGE_SUCCESS_RATE_KEY = "average_success_rate";
+    private static final String LOCK_KEY = "lock:average_success_rate";
+    private static final Duration CACHE_TTL = Duration.ofDays(1);
 
     /**
      * 회원 통계 업데이트
@@ -59,7 +70,7 @@ public class MemberStatisticsService {
     public SuccessRateResponse getSuccessRate(Long memberId) {
         return SuccessRateResponse.of(
             memberStatisticsRepository.getMemberSuccessRate(memberId),
-            memberStatisticsRepository.getAverageSuccessRate()
+            getAverageSuccessRateWithRedissonLock()
         );
     }
 
@@ -83,5 +94,37 @@ public class MemberStatisticsService {
         int nextExp = statistics.getNextExpInLevel(level);
 
         return MemberLevelResponse.of(level, currentExp, nextExp);
+    }
+
+    private int getAverageSuccessRateWithRedissonLock() {
+        String cached = redisTemplate.opsForValue().get(AVERAGE_SUCCESS_RATE_KEY);
+        if (cached != null) return Integer.parseInt(cached);
+
+
+        RLock lock = redissonClient.getLock(LOCK_KEY);
+        boolean acquired = false;
+
+        try {
+            acquired = lock.tryLock(3, 10, TimeUnit.SECONDS);
+            if (acquired) {
+                String recheck = redisTemplate.opsForValue().get(AVERAGE_SUCCESS_RATE_KEY);
+                if (recheck != null) return Integer.parseInt(recheck);
+
+                int average = memberStatisticsRepository.getAverageSuccessRate();
+                redisTemplate.opsForValue().set(AVERAGE_SUCCESS_RATE_KEY, String.valueOf(average), CACHE_TTL);
+                return average;
+            } else {
+                Thread.sleep(300);
+                String retry = redisTemplate.opsForValue().get(AVERAGE_SUCCESS_RATE_KEY);
+                return retry != null ? Integer.parseInt(retry) : 0;
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return -1;
+        } finally {
+            if (acquired && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 }
