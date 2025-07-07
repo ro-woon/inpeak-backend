@@ -82,7 +82,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     private void storeOrGenerate(Member member, String refreshToken) {
-        RefreshToken refreshTokenInstance = refreshTokenRepository.findByMemberId(member.getId())
+        RefreshToken refreshTokenInstance = refreshTokenRepository.findById(member.getId())
             .orElse(
                 RefreshToken.builder()
                     .memberId(member.getId())

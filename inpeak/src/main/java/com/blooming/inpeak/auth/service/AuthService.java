@@ -39,7 +39,7 @@ public class AuthService {
     @Transactional
     public void logout(Long memberId, HttpServletResponse response) {
         // DB에서 리프레시 토큰 삭제
-        refreshTokenRepository.deleteByMemberId(memberId);
+        refreshTokenRepository.deleteById(memberId);
 
         // 쿠키 무효화
         removeTokenCookies(response);
@@ -61,7 +61,7 @@ public class AuthService {
         String newRefreshToken = jwtTokenProvider.makeToken(member, refreshTokenDuration);
 
         // DB에 새로운 리프레시 토큰 저장
-        RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId)
+        RefreshToken refreshToken = refreshTokenRepository.findById(memberId)
             .orElse(RefreshToken.builder()
                 .memberId(memberId)
                 .refreshToken(newRefreshToken)
@@ -96,7 +96,10 @@ public class AuthService {
             throw new IllegalArgumentException("유효하지 않은 Refresh 토큰입니다.");
         }
 
-        RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(refreshTokenValue)
+        // 리프레시 토큰으로부터 멤버 ID 추출
+        String memberId = jwtTokenProvider.getUserIdFromToken(refreshTokenValue);
+
+        RefreshToken refreshToken = refreshTokenRepository.findById(Long.valueOf(memberId))
             .orElseThrow(() -> {
                 removeTokenCookies(response);
                 return new IllegalArgumentException("저장된 Refresh 토큰이 존재하지 않습니다.");

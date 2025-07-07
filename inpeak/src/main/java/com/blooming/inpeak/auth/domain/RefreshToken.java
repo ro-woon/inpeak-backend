@@ -1,40 +1,36 @@
 package com.blooming.inpeak.auth.domain;
 
-import com.blooming.inpeak.common.base.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+
 @Getter
-@Entity
-@Table(name = "refreshtokens")
-public class RefreshToken extends BaseEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@RedisHash("refreshToken")
+public class RefreshToken implements Serializable {
+
+    private static final long TWO_WEEKS_IN_MILLISECONDS = 14L * 24 * 60 * 60 * 1000;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
     private Long memberId;
 
-    @Column(nullable = false)
     private String refreshToken;
 
+    @TimeToLive(unit = TimeUnit.MILLISECONDS)
+    private Long expiration = TWO_WEEKS_IN_MILLISECONDS;
+
     @Builder
-    private RefreshToken(Long memberId, String refreshToken) {
+    public RefreshToken(Long memberId, String refreshToken) {
         this.memberId = memberId;
         this.refreshToken = refreshToken;
     }
 
-    public void update(String newRefreshToken) {
-        this.refreshToken = newRefreshToken;
+    public void update(String newToken) {
+        this.refreshToken = newToken;
+        this.expiration = TWO_WEEKS_IN_MILLISECONDS;
     }
 }

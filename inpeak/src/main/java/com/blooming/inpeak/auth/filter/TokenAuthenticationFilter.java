@@ -120,7 +120,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String memberId = jwtTokenProvider.getUserIdFromToken(refreshToken);
 
         // DB에 저장된 리프레시 토큰 검증
-        RefreshToken savedRefreshToken = refreshTokenRepository.findByMemberId(Long.valueOf(memberId))
+        RefreshToken savedRefreshToken = refreshTokenRepository.findById(Long.valueOf(memberId))
             .orElseThrow(() -> new IllegalArgumentException("저장된 리프레시 토큰이 존재하지 않습니다."));
 
         if (!savedRefreshToken.getRefreshToken().equals(refreshToken)) {
