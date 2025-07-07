@@ -1,14 +1,9 @@
 package com.blooming.inpeak.auth.repository;
 
 import com.blooming.inpeak.auth.domain.RefreshToken;
+import org.springframework.data.repository.CrudRepository;
+
 import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-
-    Optional<RefreshToken> findByMemberId(Long memberId);
-
-    Optional<RefreshToken> findByRefreshToken(String tokenValue);
-
-    void deleteByMemberId(Long memberId);
+public interface RefreshTokenRepository extends CrudRepository<RefreshToken, Long> {
 }

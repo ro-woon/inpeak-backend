@@ -46,7 +46,7 @@ public class MemberService {
         answerRepository.deleteByMemberId(id);
         interviewRepository.deleteByMemberId(id);
         memberInterestRepository.deleteByMemberId(id);
-        refreshTokenRepository.deleteByMemberId(id);
+        refreshTokenRepository.deleteById(id);
         memberRepository.delete(member);
         answerVideoCleanupService.deleteAllS3Objects(id);
     }

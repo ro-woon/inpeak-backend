@@ -26,29 +26,10 @@ class RefreshTokenRepositoryTest extends IntegrationTestSupport {
         refreshTokenRepository.save(token);
 
         // when
-        RefreshToken found = refreshTokenRepository.findByMemberId(memberId)
+        RefreshToken found = refreshTokenRepository.findById(memberId)
             .orElseThrow(() -> new IllegalStateException("해당 memberId의 RefreshToken이 존재하지 않습니다."));
 
         // then
         assertThat(found.getRefreshToken()).isEqualTo("test-token");
-    }
-
-    @DisplayName("refreshToken 값으로 엔티티 조회 성공")
-    @Test
-    void findByRefreshToken() {
-        // given
-        String tokenValue = "unique-token-value";
-        RefreshToken refreshToken = RefreshToken.builder()
-            .memberId(1L)
-            .refreshToken(tokenValue)
-            .build();
-        refreshTokenRepository.save(refreshToken);
-
-        // when
-        RefreshToken found = refreshTokenRepository.findByRefreshToken(tokenValue)
-            .orElseThrow(() -> new IllegalStateException("해당 refreshToken의 RefreshToken이 존재하지 않습니다."));
-
-        // then
-        assertThat(found.getRefreshToken()).isEqualTo(tokenValue);
     }
 }
