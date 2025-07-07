@@ -147,7 +147,6 @@ public class AnswerService {
         }
 
         answer.setUnderstood(isUnderstood);
-        answerRepository.save(answer);
     }
 
     /**
@@ -162,7 +161,6 @@ public class AnswerService {
             .orElseThrow(() -> new NotFoundException("해당 답변이 존재하지 않습니다."));
 
         answer.setComment(comment);
-        answerRepository.save(answer);
     }
 
     /**
