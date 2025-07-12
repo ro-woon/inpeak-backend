@@ -57,7 +57,7 @@ public class AnswerKafkaConsumer {
             throw e;
 
         } finally {
-            answerTaskRepository.save(task);
+            answerManagerService.saveAnswerTask(task);
         }
     }
 }
