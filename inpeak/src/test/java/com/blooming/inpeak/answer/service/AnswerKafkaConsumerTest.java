@@ -64,7 +64,7 @@ class AnswerKafkaConsumerTest {
 
         // then
         verify(task).markSuccess(100L);
-        verify(answerTaskRepository).save(task);
+        verify(answerManagerService).saveAnswerTask(task);
     }
 
     @Test
@@ -88,7 +88,7 @@ class AnswerKafkaConsumerTest {
         );
 
         verify(task).markFailed();
-        verify(answerTaskRepository).save(task);
+        verify(answerManagerService).saveAnswerTask(task);
 
 
     }
