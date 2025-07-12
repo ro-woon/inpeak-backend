@@ -1,8 +1,10 @@
 package com.blooming.inpeak.answer.service;
 
 import com.blooming.inpeak.answer.domain.Answer;
+import com.blooming.inpeak.answer.domain.AnswerTask;
 import com.blooming.inpeak.answer.dto.command.AnswerCreateCommand;
 import com.blooming.inpeak.answer.repository.AnswerRepository;
+import com.blooming.inpeak.answer.repository.AnswerTaskRepository;
 import com.blooming.inpeak.common.error.exception.ConflictException;
 import com.blooming.inpeak.common.error.exception.NotFoundException;
 import com.blooming.inpeak.member.service.MemberStatisticsService;
@@ -18,6 +20,7 @@ public class AnswerManagerService {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
     private final MemberStatisticsService memberStatisticsService;
+    private final AnswerTaskRepository answerTaskRepository;
 
     @Transactional(readOnly = true)
     public Question validateAndGetQuestion(AnswerCreateCommand command) {
@@ -39,5 +42,10 @@ public class AnswerManagerService {
         memberStatisticsService.updateStatistics(command.memberId(), answer.getStatus());
 
         return answer;
+    }
+
+    @Transactional
+    public void saveAnswerTask(AnswerTask task) {
+        AnswerTask savedTask = answerTaskRepository.save(task);
     }
 }
